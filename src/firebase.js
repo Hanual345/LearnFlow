@@ -1,6 +1,6 @@
 // Fresh Firebase Production Configuration
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -39,9 +39,12 @@ export const authActions = {
     try {
       return await signInWithPopup(auth, provider);
     } catch (err) {
-      console.error("Firebase Google Sign In Error:", err);
-      throw err;
+      console.warn("⚠️ signInWithPopup failed, attempting signInWithRedirect:", err);
+      return await signInWithRedirect(auth, provider);
     }
+  },
+  getRedirectResult: () => {
+    return getRedirectResult(auth);
   },
   getCurrentUser: () => {
     return auth.currentUser;
