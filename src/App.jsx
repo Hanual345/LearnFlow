@@ -86,12 +86,16 @@ function App() {
     alert(`Success! Your account has been verified and upgraded to ${plan.name}!`);
   };
 
-  // Monitor Firebase Auth State changes
+  // Monitor Firebase and Mock Auth State changes
   useEffect(() => {
-    const unsubscribe = authActions.onStateChanged((currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        const customTier = localStorage.getItem(`learnflow_tier_${currentUser.email.toLowerCase()}`);
+    const syncUser = (firebaseUser) => {
+      const savedMock = localStorage.getItem("learnflow_mock_user");
+      const mockUser = savedMock ? JSON.parse(savedMock) : null;
+      const activeUser = firebaseUser || mockUser;
+
+      setUser(activeUser);
+      if (activeUser) {
+        const customTier = localStorage.getItem(`learnflow_tier_${activeUser.email.toLowerCase()}`);
         if (customTier) {
           setPremiumTier(customTier);
           localStorage.setItem('learnflow_premium_tier', customTier);
@@ -104,10 +108,24 @@ function App() {
         setPremiumTier('starter');
         localStorage.setItem('learnflow_premium_tier', 'starter');
       }
+    };
+
+    const unsubscribe = authActions.onStateChanged((currentUser) => {
+      syncUser(currentUser);
     });
+
+    const handleMockChange = () => {
+      const activeFbUser = authActions.getCurrentUser ? authActions.getCurrentUser() : null;
+      syncUser(activeFbUser);
+    };
+
+    window.addEventListener('mock-auth-change', handleMockChange);
+    // Initial load sync
+    handleMockChange();
 
     return () => {
       unsubscribe();
+      window.removeEventListener('mock-auth-change', handleMockChange);
     };
   }, []);
 
