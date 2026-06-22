@@ -40,20 +40,6 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      await authActions.signInWithGoogle();
-      onClose();
-    } catch (err) {
-      console.error(err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div style={{
       position: 'fixed',

@@ -1,6 +1,6 @@
 // Firebase Configuration with Safe Local Fallback to prevent blank page crashes
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -99,20 +99,6 @@ function setupMockSystem() {
       mockAuth.currentUser = null;
       localStorage.removeItem("learnflow_mock_user");
       window.dispatchEvent(new Event('mock-auth-change'));
-    },
-    signInWithGoogle: async () => {
-      const choice = window.confirm("Do you want to sign in with Google as Administrator (hanualjoshua@gmail.com)?\n\nClick Cancel to sign in as standard Google student (google-scholar@gmail.com).");
-      const email = choice ? "hanualjoshua@gmail.com" : "google-scholar@gmail.com";
-      const displayName = choice ? "Hanua Joshua" : "Google Scholar";
-      const mockGoogleUser = {
-        uid: choice ? "mock-uid-joshua" : "mock-google-uid-" + Math.random().toString(36).substr(2, 9),
-        email,
-        displayName
-      };
-      mockAuth.currentUser = mockGoogleUser;
-      localStorage.setItem("learnflow_mock_user", JSON.stringify(mockGoogleUser));
-      window.dispatchEvent(new Event('mock-auth-change'));
-      return { user: mockGoogleUser };
     }
   };
 
@@ -167,26 +153,6 @@ export const authActions = {
   signOutUser: () => {
     if (!isConfigured || !auth) return mockAuth.signOut();
     return signOut(auth);
-  },
-  signInWithGoogle: async () => {
-    if (!isConfigured || !auth) return mockAuth.signInWithGoogle();
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    try {
-      return await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.warn("⚠️ signInWithPopup failed, attempting signInWithRedirect:", err);
-      try {
-        return await signInWithRedirect(auth, provider);
-      } catch (redirectErr) {
-        console.error("Redirect Auth Error, falling back to mock:", redirectErr);
-        return mockAuth.signInWithGoogle();
-      }
-    }
-  },
-  getRedirectResult: () => {
-    if (!isConfigured || !auth) return Promise.resolve(null);
-    return getRedirectResult(auth);
   },
   getCurrentUser: () => {
     return (isConfigured && auth) ? auth.currentUser : mockAuth.currentUser;

@@ -129,23 +129,6 @@ function App() {
     };
   }, []);
 
-  // Handle Firebase redirect login outcomes on mount
-  useEffect(() => {
-    if (authActions.getRedirectResult) {
-      authActions.getRedirectResult()
-        .then((result) => {
-          if (result && result.user) {
-            console.log("🔥 Redirect Sign In Success:", result.user);
-            setUser(result.user);
-          }
-        })
-        .catch((error) => {
-          console.error("⚠️ Redirect Sign In Error:", error);
-          alert(`Google Sign-In Error: ${error.message}`);
-        });
-    }
-  }, []);
-
   // Fetch documents from Firestore when user changes
   useEffect(() => {
     if (user) {
