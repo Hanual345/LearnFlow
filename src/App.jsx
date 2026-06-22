@@ -484,19 +484,6 @@ function AdminLoginForm({ user, authActions, navigateTo }) {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      await authActions.signInWithGoogle();
-      window.dispatchEvent(new Event('mock-auth-change'));
-    } catch (err) {
-      setError(err.message || 'Google sign in failed.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -636,21 +623,6 @@ function AdminLoginForm({ user, authActions, navigateTo }) {
             {loading ? 'Verifying...' : 'Sign In as Admin'}
           </button>
         </form>
-
-        <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0', color: 'var(--text-muted)' }}>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
-          <span style={{ padding: '0 0.75rem', fontSize: '0.75rem', textTransform: 'uppercase' }}>Or</span>
-          <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
-        </div>
-
-        <button 
-          className="btn btn-secondary" 
-          style={{ width: '100%', padding: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-        >
-          Sign In with Google
-        </button>
 
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <button 
